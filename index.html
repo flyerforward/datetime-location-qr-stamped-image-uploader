@@ -20,41 +20,115 @@
     color:#333;
     min-height:100vh;
   }
-  h1 {font-weight:600;margin-bottom:.1rem;text-align:center;color:#2c3e50;}
-  .camera-container {position:relative;width:100%;max-width:320px;}
+  h1 {
+    font-weight:600;
+    margin-bottom:.1rem;
+    text-align:center;
+    color:#2c3e50;
+  }
+  .camera-container {
+    position:relative;
+    width:100%;
+    max-width:320px;
+  }
   video {
-    border-radius:16px;box-shadow:0 8px 24px rgba(44,62,80,0.15);
-    width:100%;aspect-ratio:3/4;object-fit:cover;background:#000;
+    border-radius:16px;
+    box-shadow:0 8px 24px rgba(44,62,80,0.15);
+    width:100%;
+    aspect-ratio:3/4;
+    object-fit:cover;
+    background:#000;
   }
   .flash {
-    position:absolute;top:0;left:0;width:100%;height:100%;
-    background:white;opacity:0;border-radius:16px;pointer-events:none;
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:white;
+    opacity:0;
+    border-radius:16px;
+    pointer-events:none;
     transition:opacity 0.3s ease;
   }
-  .button-canvas-wrapper {margin-top:1.8rem;width:100%;max-width:320px;display:flex;flex-direction:column;align-items:center;gap:1rem;}
-  .button-row {display:flex;gap:2rem;justify-content:center;width:100%;}
-  button.icon-btn {
-    background:#2980b9;border:none;cursor:pointer;border-radius:50%;
-    width:64px;height:64px;display:flex;align-items:center;justify-content:center;
-    box-shadow:0 4px 12px rgba(41,128,185,0.4);
-    transition:background-color 0.3s ease,box-shadow 0.3s ease,transform 0.2s ease;
+  .button-canvas-wrapper {
+    margin-top:1.8rem;
+    width:100%;
+    max-width:320px;
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
   }
-  button.icon-btn:disabled {background:#7f8c8d;cursor:not-allowed;box-shadow:none;opacity:0.5;}
-  button.icon-btn:hover:not(:disabled) {background:#1c5980;box-shadow:0 6px 16px rgba(28,89,128,0.6);}
-  button.icon-btn:active:not(:disabled) {background:#174663;}
-  button.icon-btn svg {width:28px;height:28px;}
-  .spinner {border:3px solid rgba(255,255,255,0.3);border-top:3px solid white;border-radius:50%;width:28px;height:28px;animation:spin 1s linear infinite;}
-  @keyframes spin {100%{transform:rotate(360deg);}}
-  canvas {border-radius:16px;box-shadow:0 8px 24px rgba(44,62,80,0.15);width:100%;max-width:320px;display:none;aspect-ratio:3/4;object-fit:cover;}
-  .success {background:#27ae60 !important;}
-  .checkmark-anim {transform:scale(1.3);animation:pop 0.3s ease forwards;}
-  @keyframes pop {0%{transform:scale(0.5);}100%{transform:scale(1);}}
+  .button-row {
+    display:flex;
+    gap:2rem;
+    justify-content:center;
+    width: 100%;
+  }
+  button.icon-btn {
+    background:#2980b9;
+    border:none;
+    cursor:pointer;
+    border-radius:50%;
+    width:64px;
+    height:64px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 4px 12px rgba(41,128,185,0.4);
+    transition:background-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+  }
+  button.icon-btn:disabled {
+    background:#7f8c8d;
+    cursor:not-allowed;
+    box-shadow:none;
+    opacity:0.5;
+  }
+  button.icon-btn:hover:not(:disabled) {
+    background:#1c5980;
+    box-shadow:0 6px 16px rgba(28,89,128,0.6);
+  }
+  button.icon-btn:active:not(:disabled) {
+    background:#174663;
+  }
+  button.icon-btn svg {
+    width:28px;
+    height:28px;
+  }
+  .spinner {
+    border:3px solid rgba(255,255,255,0.3);
+    border-top:3px solid white;
+    border-radius:50%;
+    width:28px;
+    height:28px;
+    animation:spin 1s linear infinite;
+  }
+  @keyframes spin { 100% { transform: rotate(360deg); } }
+
+  /* ✅ Green success state */
+  button.icon-btn.success {
+    background:#27ae60 !important;
+    box-shadow:0 6px 16px rgba(39,174,96,0.6);
+  }
+  .checkmark-anim { transform: scale(0.8); animation: pop 0.3s ease forwards; }
+  @keyframes pop { 0% {transform: scale(0.5);} 100% {transform: scale(1);} }
+
+  canvas {
+    border-radius:16px;
+    box-shadow:0 8px 24px rgba(44,62,80,0.15);
+    width: 100%;
+    max-width:320px;
+    display:none;
+    aspect-ratio:3/4;
+    object-fit:cover;
+  }
   @media(max-width:480px){
     button.icon-btn{width:56px;height:56px;}
     button.icon-btn svg{width:24px;height:24px;}
-    .camera-container{max-width:280px;}
-    .button-canvas-wrapper{max-width:280px;}
-    canvas{max-width:280px;width:100%;}
+    .camera-container {max-width:280px;}
+    .button-canvas-wrapper {max-width:280px;}
+    canvas {max-width:280px;width:100%;}
   }
 </style>
 </head>
@@ -97,6 +171,11 @@ const cameraIcon=document.getElementById("cameraIcon");
 const downloadBtn=document.getElementById("downloadBtn");
 const flashOverlay=document.getElementById("flashOverlay");
 const ctx=canvas.getContext("2d");
+
+// ✅ store original download icon
+const originalDownloadIcon = `<svg id="downloadIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+  <path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 15v2a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-2m-8 1V4m0 12-4-4m4 4 4-4"/>
+</svg>`;
 
 async function startCamera(){
   try{
@@ -150,6 +229,8 @@ snapBtn.addEventListener("click",async()=>{
   showSpinner();
   downloadBtn.style.display="none";
   downloadBtn.disabled=true;
+  downloadBtn.innerHTML = originalDownloadIcon; // ✅ restore original arrow
+  downloadBtn.classList.remove("success");
   canvas.style.display="none";
   triggerFlash();
 
@@ -217,15 +298,13 @@ downloadBtn.addEventListener("click",()=>{
   link.href=tempCanvas.toDataURL("image/jpeg",0.4);
   link.click();
 
-  // ✅ Animate success (turn green + checkmark)
+  // ✅ Animate success checkmark
   downloadBtn.classList.add("success");
-  const icon=document.getElementById("downloadIcon");
-  icon.outerHTML=`<svg id="downloadIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="checkmark-anim"><path fill="white" d="M20.285 6.709l-11.4 11.4-5.657-5.657 1.414-1.414 4.243 4.243 9.986-9.986z"/></svg>`;
+  downloadBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="checkmark-anim"><path fill="white" d="M20.285 6.709l-11.4 11.4-5.657-5.657 1.414-1.414 4.243 4.243 9.986-9.986z"/></svg>`;
 
-  // ✅ Remove button & image together
+  // ✅ Hide button & image after animation
   setTimeout(()=>{
     downloadBtn.style.display="none";
-    downloadBtn.classList.remove("success");
     canvas.style.display="none";
     ctx.clearRect(0,0,canvas.width,canvas.height);
   },800);
