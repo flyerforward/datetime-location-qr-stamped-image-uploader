@@ -167,12 +167,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-<script>
-  // Make sure taps trigger clicks reliably on iOS
-  document.querySelectorAll("button.icon-btn").forEach(btn => {
-    btn.addEventListener("touchstart", () => btn.click(), { passive: true });
-  });
-</script>
+
 <script>
 const video=document.getElementById("video");
 const canvas=document.getElementById("canvas");
