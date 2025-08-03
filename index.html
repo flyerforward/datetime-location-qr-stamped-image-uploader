@@ -42,7 +42,7 @@
 </div>
 
 <div class="button-row">
-  <!-- Snap Button -->
+  <!-- ✅ Snap Button -->
   <button id="snapBtn" class="icon-btn" title="Snap Photo">
     <svg id="cameraIcon" viewBox="0 0 24 24">
       <path fill="white" d="M20 5h-3.586l-1.707-1.707A.996.996 0 0014 3H10a.996.996 0 00-.707.293L7.586 5H4c-1.103 0-2 .897-2 2v11c0 1.104.897 2 2 2h16c1.103 0 2-.896 2-2V7c0-1.103-.897-2-2-2zM12 18c-2.209 0-4-1.791-4-4s1.791-4 4-4c2.208 0 4 1.791 4 4s-1.792 4-4 4z"/>
@@ -50,7 +50,7 @@
     </svg>
   </button>
 
-  <!-- Download Button -->
+  <!-- ✅ Download Button with Provided Icon -->
   <button id="downloadBtn" class="icon-btn" title="Download Photo" style="display:none;">
     <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
       <path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 15v2a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-2m-8 1V4m0 12-4-4m4 4 4-4"/>
@@ -88,18 +88,6 @@ function getPosition(){
   });
 }
 
-async function getAddressFromCoords(lat, lon) {
-  const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
-  try {
-    const res = await fetch(url, { headers: { 'User-Agent': 'FlyerForward/1.0' } });
-    if (!res.ok) throw new Error("Failed to fetch address");
-    const data = await res.json();
-    return data.display_name || null;
-  } catch {
-    return null;
-  }
-}
-
 async function drawQRCode(data,x,y,size){
   return new Promise((resolve,reject)=>{
     QRCode.toCanvas(data,{errorCorrectionLevel:'H',width:size},(err,qrCanvas)=>{
@@ -131,7 +119,7 @@ function hideSpinner(){
 
 snapBtn.addEventListener("click",async()=>{
   snapBtn.disabled=true;
-  showSpinner();
+  showSpinner(); 
   downloadBtn.style.display="none";
   canvas.style.display="none";
   triggerFlash();
@@ -145,14 +133,7 @@ snapBtn.addEventListener("click",async()=>{
 
     let coordsText="GPS unavailable";
     let coords=null;
-    let address=null;
-    try {
-      coords=await getPosition();
-      coordsText=`Lat:${coords.latitude.toFixed(6)}, Lon:${coords.longitude.toFixed(6)}`;
-      address = await getAddressFromCoords(coords.latitude, coords.longitude);
-    } catch(e) {
-      console.warn("GPS or address error:",e);
-    }
+    try{coords=await getPosition();coordsText=`Lat:${coords.latitude.toFixed(6)}, Lon:${coords.longitude.toFixed(6)}`;}catch(e){console.warn("GPS error:",e);}
 
     const now=new Date();
     const qrData=JSON.stringify({timestamp:now.toISOString(),latitude:coords?coords.latitude:null,longitude:coords?coords.longitude:null});
@@ -160,15 +141,14 @@ snapBtn.addEventListener("click",async()=>{
     const qrSize=width*0.25;
     await drawQRCode(qrData,10,10,qrSize);
 
-    ctx.font=`${qrSize/6}px monospace`;
+    ctx.font=`${qrSize/7}px monospace`;
     ctx.fillStyle="white";
     ctx.strokeStyle="black";
     ctx.lineWidth=2;
-    const lines = [`${now.toLocaleString()}`, coordsText];
-    if(address) lines.push(address);
-    const lineHeight=qrSize/6+6;
+    const lines=[`${now.toLocaleString()}`,coordsText];
+    const lineHeight=qrSize/7+4;
     let textY=height-10;
-    for(let i=lines.length-1; i>=0; i--){
+    for(let i=lines.length-1;i>=0;i--){
       const textWidth=ctx.measureText(lines[i]).width;
       const textX=(width-textWidth)/2;
       ctx.strokeText(lines[i],textX,textY);
@@ -178,9 +158,8 @@ snapBtn.addEventListener("click",async()=>{
 
     canvas.style.display="block";
     downloadBtn.style.display="inline-flex";
-  }catch(err){
-    alert("Error capturing photo: "+err);
-  }finally{
+  }catch(err){alert("Error capturing photo: "+err);}
+  finally{
     hideSpinner();
     snapBtn.disabled=false;
   }
