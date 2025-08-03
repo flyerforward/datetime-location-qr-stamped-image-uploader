@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Photo with GPS QR Code</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 1em;
+    text-align: center;
+  }
+  video, canvas {
+    max-width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+  #qrCode {
+    display: none;
+  }
+  button {
+    margin-top: 1em;
+    font-size: 1.2em;
+    padding: 0.5em 1.2em;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<h1>Snap Photo + GPS QR Code</h1>
+
+<video id="video" autoplay playsinline></video>
+<br />
+<button id="snapBtn">Snap Photo</button>
+<br /><br />
+<canvas id="canvas"></canvas>
+<br />
+<button id="downloadBtn" style="display:none;">Download Photo</button>
+
+<!-- QRCode library from CDN -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
+<script>
+  const video = document.getElementById("video");
+  const canvas = document.getElementById("canvas");
+  const snapBtn = document.getElementById("snapBtn");
+  const downloadBtn = document.getElementById("downloadBtn");
+  const ctx = canvas.getContext("2d");
+
+  // Start camera stream
+  async function startCamera() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+      video.srcObject = stream;
+    } catch (e) {
+      alert("Could not access camera: " + e);
+    }
+  }
+
+  // Get GPS position
+  function getPosition() {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject("Geolocation not supported");
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => resolve(pos.coords),
+        (err) => reject(err.message),
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    });
+  }
+
+  // Draw QR code on canvas
+  async function drawQRCode(data, x, y, size) {
+    return new Promise((resolve, reject) => {
+      QRCode.toCanvas(data, { errorCorrectionLevel: 'H', width: size }, function (err, qrCanvas) {
+        if (err) reject(err);
+        ctx.drawImage(qrCanvas, x, y);
+        resolve();
+      });
+    });
+  }
+
+  snapBtn.addEventListener("click", async () => {
+    snapBtn.disabled = true;
+    downloadBtn.style.display = "none";
+
+    try {
+      const width = video.videoWidth;
+      const height = video.videoHeight;
+      canvas.width = width;
+      canvas.height = height;
+
+      // Draw the video frame onto canvas
+      ctx.drawImage(video, 0, 0, width, height);
+
+      // Get GPS position
+      let coordsText = "GPS unavailable";
+      try {
+        const coords = await getPosition();
+        coordsText = `Lat:${coords.latitude.toFixed(6)}, Lon:${coords.longitude.toFixed(6)}`;
+      } catch (e) {
+        console.warn("GPS error:", e);
+      }
+
+      // Prepare data for QR code (JSON string)
+      const now = new Date();
+      const qrData = JSON.stringify({
+        timestamp: now.toISOString(),
+        latitude: coordsText.startsWith("GPS unavailable") ? null : coords.latitude,
+        longitude: coordsText.startsWith("GPS unavailable") ? null : coords.longitude
+      });
+
+      // Draw QR code at bottom-right corner (about 20% canvas width)
+      const qrSize = width * 0.2;
+      const qrX = width - qrSize - 10;
+      const qrY = height - qrSize - 10;
+      await drawQRCode(qrData, qrX, qrY, qrSize);
+
+      // Draw timestamp text above QR code
+      ctx.font = `${qrSize / 8}px monospace`;
+      ctx.fillStyle = "white";
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 2;
+      const text = `${now.toLocaleString()} \n${coordsText}`;
+      const lines = text.split("\n");
+      let textY = qrY - 10;
+      for (let i = lines.length - 1; i >= 0; i--) {
+        ctx.strokeText(lines[i], qrX, textY);
+        ctx.fillText(lines[i], qrX, textY);
+        textY -= qrSize / 8 + 4;
+      }
+
+      downloadBtn.style.display = "inline-block";
+    } catch (err) {
+      alert("Error capturing photo: " + err);
+    } finally {
+      snapBtn.disabled = false;
+    }
+  });
+
+  downloadBtn.addEventListener("click", () => {
+    const link = document.createElement("a");
+    link.download = `photo_${new Date().toISOString()}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  });
+
+  startCamera();
+</script>
+</body>
+</html>
