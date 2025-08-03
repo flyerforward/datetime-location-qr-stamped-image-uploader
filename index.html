@@ -18,7 +18,7 @@
   button.icon-btn:disabled {background:#7f8c8d; cursor:not-allowed; box-shadow:none;}
   button.icon-btn:hover:not(:disabled){background:#1c5980; box-shadow:0 6px 16px rgba(28,89,128,0.6);}
   button.icon-btn:active:not(:disabled){background:#174663;}
-  button.icon-btn svg {width:28px; height:28px;}
+  button.icon-btn svg {width:28px; height:28px; fill:white;}
   @media(max-width:480px){button.icon-btn{width:56px;height:56px;}button.icon-btn svg{width:24px;height:24px;}}
 </style>
 </head>
@@ -32,12 +32,15 @@
 </div>
 
 <div class="button-row">
-  <!-- Snap Button -->
+  <!-- ✅ Snap Button with White Camera Icon -->
   <button id="snapBtn" class="icon-btn" title="Snap Photo">
-    <svg viewBox="0 0 24 24"><path d="M20 5h-3.586l-1.707-1.707A.996.996 0 0014 3H10a.996.996 0 00-.707.293L7.586 5H4c-1.103 0-2 .897-2 2v11c0 1.104.897 2 2 2h16c1.103 0 2-.896 2-2V7c0-1.103-.897-2-2-2zM12 18c-2.209 0-4-1.791-4-4s1.791-4 4-4c2.208 0 4 1.791 4 4s-1.792 4-4 4z"/><circle cx="12" cy="14" r="2.5"/></svg>
+    <svg viewBox="0 0 24 24">
+      <path fill="white" d="M20 5h-3.586l-1.707-1.707A.996.996 0 0014 3H10a.996.996 0 00-.707.293L7.586 5H4c-1.103 0-2 .897-2 2v11c0 1.104.897 2 2 2h16c1.103 0 2-.896 2-2V7c0-1.103-.897-2-2-2zM12 18c-2.209 0-4-1.791-4-4s1.791-4 4-4c2.208 0 4 1.791 4 4s-1.792 4-4 4z"/>
+      <circle fill="white" cx="12" cy="14" r="2.5"/>
+    </svg>
   </button>
 
-  <!-- ✅ New Download Button -->
+  <!-- ✅ Download Button with Provided Icon -->
   <button id="downloadBtn" class="icon-btn" title="Download Photo" style="display:none;">
     <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
       <path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 15v2a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-2m-8 1V4m0 12-4-4m4 4 4-4"/>
@@ -105,10 +108,10 @@ snapBtn.addEventListener("click",async()=>{
     const now=new Date();
     const qrData=JSON.stringify({timestamp:now.toISOString(),latitude:coords?coords.latitude:null,longitude:coords?coords.longitude:null});
 
-    const qrSize=width*0.25; // ✅ slightly larger QR
-    await drawQRCode(qrData,width-qrSize-10,height-qrSize-10,qrSize);
+    const qrSize=width*0.25; // ✅ larger QR
+    await drawQRCode(qrData,10,10,qrSize); // ✅ top-left corner
 
-    ctx.font=`${qrSize/7}px monospace`; // ✅ slightly larger text
+    ctx.font=`${qrSize/7}px monospace`; // ✅ larger text
     ctx.fillStyle="white";ctx.strokeStyle="black";ctx.lineWidth=2;
     const lines=[`${now.toLocaleString()}`,coordsText];
     const lineHeight=qrSize/7+4;
@@ -127,7 +130,7 @@ snapBtn.addEventListener("click",async()=>{
 });
 
 downloadBtn.addEventListener("click",()=>{
-  // ✅ Resize to 900px max & compress to ~40% quality
+  // ✅ Smaller file: 900px max width, 40% quality
   const maxW=900;
   let tempCanvas=canvas;
   if(canvas.width>maxW){
@@ -139,7 +142,7 @@ downloadBtn.addEventListener("click",()=>{
   }
   const link=document.createElement("a");
   link.download=`photo_${new Date().toISOString()}.jpg`;
-  link.href=tempCanvas.toDataURL("image/jpeg",0.4); // ✅ smaller file
+  link.href=tempCanvas.toDataURL("image/jpeg",0.4);
   link.click();
 });
 
