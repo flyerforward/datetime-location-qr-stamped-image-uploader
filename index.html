@@ -83,9 +83,7 @@
     justify-content: center;
     box-shadow: 0 4px 12px rgba(41, 128, 185, 0.4);
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    position: relative;
   }
-
   button.icon-btn:disabled { background: #7f8c8d; cursor: not-allowed; box-shadow: none; }
   button.icon-btn:hover:not(:disabled) { background: #1c5980; box-shadow: 0 6px 16px rgba(28, 89, 128, 0.6); }
   button.icon-btn:active:not(:disabled) { background: #174663; }
@@ -113,9 +111,11 @@
     <svg viewBox="0 0 24 24"><path d="M20 5h-3.586l-1.707-1.707A.996.996 0 0014 3H10a.996.996 0 00-.707.293L7.586 5H4c-1.103 0-2 .897-2 2v11c0 1.104.897 2 2 2h16c1.103 0 2-.896 2-2V7c0-1.103-.897-2-2-2zM12 18c-2.209 0-4-1.791-4-4s1.791-4 4-4c2.208 0 4 1.791 4 4s-1.792 4-4 4z"/><circle cx="12" cy="14" r="2.5"/></svg>
   </button>
 
-  <!-- Download Button -->
+  <!-- ✅ Correct Download Button -->
   <button id="downloadBtn" class="icon-btn" title="Download Photo" aria-label="Download Photo" type="button" style="display:none;">
-    <svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zm7-18v12l5-5 1.4 1.4L12 18l-6.4-6.6L7 11l5 5V2h0z"/></svg>
+    <svg viewBox="0 0 24 24">
+      <path fill="white" d="M5 20h14v-2H5v2zm7-18v12l5-5 1.4 1.4L12 18l-6.4-6.6L7 11l5 5V2z"/>
+    </svg>
   </button>
 </div>
 
@@ -161,7 +161,6 @@ async function drawQRCode(data, x, y, size) {
   });
 }
 
-// Add flash effect
 function triggerFlash() {
   flashOverlay.style.opacity = "1";
   setTimeout(() => { flashOverlay.style.opacity = "0"; }, 150);
@@ -199,7 +198,7 @@ snapBtn.addEventListener("click", async () => {
     const qrY = height - qrSize - 10;
     await drawQRCode(qrData, qrX, qrY, qrSize);
 
-    // Draw text at the very bottom, centered
+    // Draw text at bottom center
     ctx.font = `${qrSize / 8}px monospace`;
     ctx.fillStyle = "white";
     ctx.strokeStyle = "black";
