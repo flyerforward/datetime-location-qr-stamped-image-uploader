@@ -3,42 +3,142 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Photo with GPS QR Code</title>
+<title>Flyer Forward: Stamped Photo Generator</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+  * {
+    box-sizing: border-box;
+  }
+
   body {
-    font-family: Arial, sans-serif;
-    margin: 1em;
+    margin: 0;
+    background: #f5f7fa;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+      Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem 3rem;
+    color: #333;
+    min-height: 100vh;
+  }
+
+  h1 {
+    font-weight: 600;
+    margin-bottom: 2rem;
     text-align: center;
+    color: #2c3e50;
   }
-  video, canvas {
-    max-width: 100%;
-    border: 1px solid #ccc;
-    border-radius: 8px;
+
+  video {
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(44, 62, 80, 0.15);
+    width: 100%;
+    max-width: 420px;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    background: #000;
   }
-  #qrCode {
-    display: none;
+
+  canvas {
+    margin-top: 1.5rem;
+    border-radius: 16px;
+    max-width: 420px;
+    box-shadow: 0 8px 24px rgba(44, 62, 80, 0.15);
+    width: 100%;
+    aspect-ratio: 3 / 4;
   }
-  button {
-    margin-top: 1em;
-    font-size: 1.2em;
-    padding: 0.5em 1.2em;
+
+  .button-row {
+    margin-top: 1.8rem;
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+  }
+
+  button.icon-btn {
+    background: #2980b9;
+    border: none;
     cursor: pointer;
+    border-radius: 50%;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(41, 128, 185, 0.4);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  button.icon-btn:disabled {
+    background: #7f8c8d;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  button.icon-btn:hover:not(:disabled) {
+    background: #1c5980;
+    box-shadow: 0 6px 16px rgba(28, 89, 128, 0.6);
+  }
+  button.icon-btn:active:not(:disabled) {
+    background: #174663;
+  }
+
+  button.icon-btn svg {
+    fill: white;
+    width: 28px;
+    height: 28px;
+  }
+
+  /* Tooltip style */
+  button.icon-btn[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 90px;
+    background: #222;
+    color: #fff;
+    font-size: 0.75rem;
+    padding: 0.2em 0.5em;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 480px) {
+    button.icon-btn {
+      width: 56px;
+      height: 56px;
+    }
+    button.icon-btn svg {
+      width: 24px;
+      height: 24px;
+    }
   }
 </style>
 </head>
 <body>
 
-<h1>Snap Photo + GPS QR Code</h1>
+<h1>Flyer Forward: Stamped Photo Generator</h1>
 
 <video id="video" autoplay playsinline></video>
-<br />
-<button id="snapBtn">Snap Photo</button>
-<br /><br />
-<canvas id="canvas"></canvas>
-<br />
-<button id="downloadBtn" style="display:none;">Download Photo</button>
 
-<!-- QRCode library from CDN -->
+<div class="button-row">
+  <button id="snapBtn" class="icon-btn" title="Snap Photo" aria-label="Snap Photo" type="button">
+    <!-- Camera icon -->
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M20 5h-3.586l-1.707-1.707A.996.996 0 0014 3H10a.996.996 0 00-.707.293L7.586 5H4c-1.103 0-2 .897-2 2v11c0 1.104.897 2 2 2h16c1.103 0 2-.896 2-2V7c0-1.103-.897-2-2-2zM12 18c-2.209 0-4-1.791-4-4s1.791-4 4-4c2.208 0 4 1.791 4 4s-1.792 4-4 4z"/>
+      <circle cx="12" cy="14" r="2.5"/>
+    </svg>
+  </button>
+
+  <button id="downloadBtn" class="icon-btn" title="Download Photo" aria-label="Download Photo" type="button" style="display:none;">
+    <!-- Download icon -->
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M5 20h14v-2H5v2zm7-18L5.33 9.33l1.41 1.41L11 7.41V16h2V7.41l4.26 3.33 1.41-1.41L12 2z"/>
+    </svg>
+  </button>
+</div>
+
+<canvas id="canvas" style="display:block; margin: 2rem auto;"></canvas>
+
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
 <script>
@@ -48,7 +148,6 @@
   const downloadBtn = document.getElementById("downloadBtn");
   const ctx = canvas.getContext("2d");
 
-  // Start camera stream
   async function startCamera() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
@@ -58,7 +157,6 @@
     }
   }
 
-  // Get GPS position
   function getPosition() {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
@@ -73,7 +171,6 @@
     });
   }
 
-  // Draw QR code on canvas
   async function drawQRCode(data, x, y, size) {
     return new Promise((resolve, reject) => {
       QRCode.toCanvas(data, { errorCorrectionLevel: 'H', width: size }, function (err, qrCanvas) {
@@ -94,10 +191,8 @@
       canvas.width = width;
       canvas.height = height;
 
-      // Draw the video frame onto canvas
       ctx.drawImage(video, 0, 0, width, height);
 
-      // Get GPS position
       let coordsText = "GPS unavailable";
       let coords = null;
       try {
@@ -107,7 +202,6 @@
         console.warn("GPS error:", e);
       }
 
-      // Prepare data for QR code (JSON string)
       const now = new Date();
       const qrData = JSON.stringify({
         timestamp: now.toISOString(),
@@ -115,27 +209,31 @@
         longitude: coords ? coords.longitude : null
       });
 
-      // Draw QR code at bottom-right corner (about 20% canvas width)
       const qrSize = width * 0.2;
       const qrX = width - qrSize - 10;
       const qrY = height - qrSize - 10;
       await drawQRCode(qrData, qrX, qrY, qrSize);
 
-      // Draw timestamp text above QR code
+      // Draw centered text above QR code
       ctx.font = `${qrSize / 8}px monospace`;
       ctx.fillStyle = "white";
       ctx.strokeStyle = "black";
       ctx.lineWidth = 2;
-      const text = `${now.toLocaleString()} \n${coordsText}`;
-      const lines = text.split("\n");
+
+      const lines = [`${now.toLocaleString()}`, coordsText];
+      const lineHeight = qrSize / 8 + 4;
       let textY = qrY - 10;
+
       for (let i = lines.length - 1; i >= 0; i--) {
-        ctx.strokeText(lines[i], qrX, textY);
-        ctx.fillText(lines[i], qrX, textY);
-        textY -= qrSize / 8 + 4;
+        const line = lines[i];
+        const textWidth = ctx.measureText(line).width;
+        const textX = (width - textWidth) / 2; // center horizontally
+        ctx.strokeText(line, textX, textY);
+        ctx.fillText(line, textX, textY);
+        textY -= lineHeight;
       }
 
-      downloadBtn.style.display = "inline-block";
+      downloadBtn.style.display = "inline-flex";
     } catch (err) {
       alert("Error capturing photo: " + err);
     } finally {
@@ -152,5 +250,6 @@
 
   startCamera();
 </script>
+
 </body>
 </html>
