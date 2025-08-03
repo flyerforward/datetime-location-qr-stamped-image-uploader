@@ -71,7 +71,7 @@
     border:none;
     cursor:pointer;
     border-radius:50%;
-    width:72px;  /* bigger touch area */
+    width:72px;
     height:72px;
     display:flex;
     align-items:center;
@@ -97,7 +97,7 @@
   button.icon-btn svg {
     width:32px;
     height:32px;
-    pointer-events:none; /* ✅ taps always hit the button */
+    pointer-events:none;
   }
   .spinner {
     border:3px solid rgba(255,255,255,0.3);
@@ -118,22 +118,22 @@
     aspect-ratio:3/4;
     object-fit:cover;
   }
+  /* ✅ Fixed Checkmark Alignment */
   .checkmark {
     width:28px;
     height:28px;
     border-radius:50%;
     border:2px solid white;
-    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
     transform:scale(0);
     animation:popIn 0.3s forwards;
   }
   .checkmark:after {
     content:'';
-    position:absolute;
-    left:6px;
-    top:10px;
-    width:6px;
-    height:12px;
+    width:7px;
+    height:14px;
     border:solid white;
     border-width:0 2px 2px 0;
     transform:rotate(45deg);
@@ -164,8 +164,7 @@
     <!-- Snap Button -->
     <button id="snapBtn" class="icon-btn" title="Snap Photo">
       <!-- ✅ NEW Camera SVG -->
-      <svg id="cameraIcon" version="1.0" xmlns="http://www.w3.org/2000/svg"
-           width="80px" height="80px" viewBox="0 0 64 64" xml:space="preserve">
+      <svg id="cameraIcon" version="1.0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
         <g>
           <path fill="white" d="M60,10H49.656l-6.828-6.828C42.078,2.422,41.062,2,40,2H24c-1.062,0-2.078,0.422-2.828,1.172L14.344,10H4
             c-2.211,0-4,1.789-4,4v44c0,2.211,1.789,4,4,4h56c2.211,0,4-1.789,4-4V14C64,11.789,62.211,10,60,10z M32,50
@@ -177,7 +176,7 @@
 
     <!-- Download Button -->
     <button id="downloadBtn" class="icon-btn" title="Download Photo" style="display:none;" disabled>
-      <svg id="downloadIcon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+      <svg id="downloadIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
         <path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 15v2a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-2m-8 1V4m0 12-4-4m4 4 4-4"/>
       </svg>
     </button>
@@ -300,6 +299,7 @@ snapBtn.addEventListener("click",async()=>{
 downloadBtn.addEventListener("click",()=>{
   if(downloadBtn.disabled) return;
 
+  // ✅ Trigger Download Programmatically
   const maxW=900;
   let tempCanvas=canvas;
   if(canvas.width>maxW){
@@ -313,16 +313,18 @@ downloadBtn.addEventListener("click",()=>{
   const link=document.createElement("a");
   link.download=`photo_${new Date().toISOString()}.jpg`;
   link.href=tempCanvas.toDataURL("image/jpeg",0.4);
+  document.body.appendChild(link);
   link.click();
+  document.body.removeChild(link);
 
-  // ✅ Turn button green with checkmark
+  // ✅ Animate Green Checkmark
   downloadBtn.style.background="#27ae60";
   downloadIcon.style.display="none";
   const check=document.createElement("div");
   check.className="checkmark";
   downloadBtn.appendChild(check);
 
-  // ✅ Disable button and hide after animation
+  // ✅ Hide Button + Reset for Next Capture
   downloadBtn.disabled=true;
   setTimeout(()=>{
     downloadBtn.style.display="none";
@@ -332,11 +334,6 @@ downloadBtn.addEventListener("click",()=>{
     canvas.style.display="none";
     ctx.clearRect(0,0,canvas.width,canvas.height);
   },800);
-});
-
-// ✅ Make buttons more reliably clickable on iOS
-document.querySelectorAll("button.icon-btn").forEach(btn=>{
-  btn.addEventListener("touchstart",()=>btn.click(),{passive:true});
 });
 
 startCamera();
