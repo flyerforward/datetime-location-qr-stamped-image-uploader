@@ -6,94 +6,20 @@
 <title>Flyer Forward: Stamped Photo Generator</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
-
   * { box-sizing: border-box; }
-
-  body {
-    margin: 0;
-    background: #f5f7fa;
-    font-family: 'Inter', sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 2rem 1rem 3rem;
-    color: #333;
-    min-height: 100vh;
-  }
-
-  h1 {
-    font-weight: 600;
-    margin-bottom: 2rem;
-    text-align: center;
-    color: #2c3e50;
-  }
-
-  .camera-container {
-    position: relative;
-    width: 100%;
-    max-width: 420px;
-  }
-
-  video {
-    border-radius: 16px;
-    box-shadow: 0 8px 24px rgba(44, 62, 80, 0.15);
-    width: 100%;
-    aspect-ratio: 3/4;
-    object-fit: cover;
-    background: #000;
-  }
-
-  /* Flash overlay */
-  .flash {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: white;
-    opacity: 0;
-    border-radius: 16px;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-  }
-
-  canvas {
-    margin-top: 1.5rem;
-    border-radius: 16px;
-    max-width: 420px;
-    box-shadow: 0 8px 24px rgba(44, 62, 80, 0.15);
-    width: 100%;
-    aspect-ratio: 3/4;
-  }
-
-  .button-row {
-    margin-top: 1.8rem;
-    display: flex;
-    gap: 2rem;
-    justify-content: center;
-  }
-
-  button.icon-btn {
-    background: #2980b9;
-    border: none;
-    cursor: pointer;
-    border-radius: 50%;
-    width: 64px;
-    height: 64px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(41, 128, 185, 0.4);
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-  }
-  button.icon-btn:disabled { background: #7f8c8d; cursor: not-allowed; box-shadow: none; }
-  button.icon-btn:hover:not(:disabled) { background: #1c5980; box-shadow: 0 6px 16px rgba(28, 89, 128, 0.6); }
-  button.icon-btn:active:not(:disabled) { background: #174663; }
-
-  button.icon-btn svg { fill: white; width: 28px; height: 28px; }
-
-  @media (max-width: 480px) {
-    button.icon-btn { width: 56px; height: 56px; }
-    button.icon-btn svg { width: 24px; height: 24px; }
-  }
+  body { margin:0; background:#f5f7fa; font-family:'Inter',sans-serif; display:flex; flex-direction:column; align-items:center; padding:2rem 1rem 3rem; color:#333; min-height:100vh;}
+  h1 {font-weight:600; margin-bottom:2rem; text-align:center; color:#2c3e50;}
+  .camera-container {position:relative; width:100%; max-width:420px;}
+  video {border-radius:16px; box-shadow:0 8px 24px rgba(44,62,80,0.15); width:100%; aspect-ratio:3/4; object-fit:cover; background:#000;}
+  .flash {position:absolute; top:0; left:0; width:100%; height:100%; background:white; opacity:0; border-radius:16px; pointer-events:none; transition:opacity 0.3s ease;}
+  canvas {margin-top:1.5rem; border-radius:16px; max-width:420px; box-shadow:0 8px 24px rgba(44,62,80,0.15); width:100%; aspect-ratio:3/4;}
+  .button-row {margin-top:1.8rem; display:flex; gap:2rem; justify-content:center;}
+  button.icon-btn {background:#2980b9; border:none; cursor:pointer; border-radius:50%; width:64px; height:64px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(41,128,185,0.4); transition:background-color 0.3s ease, box-shadow 0.3s ease;}
+  button.icon-btn:disabled {background:#7f8c8d; cursor:not-allowed; box-shadow:none;}
+  button.icon-btn:hover:not(:disabled){background:#1c5980; box-shadow:0 6px 16px rgba(28,89,128,0.6);}
+  button.icon-btn:active:not(:disabled){background:#174663;}
+  button.icon-btn svg {fill:white; width:28px; height:28px;}
+  @media(max-width:480px){button.icon-btn{width:56px;height:56px;}button.icon-btn svg{width:24px;height:24px;}}
 </style>
 </head>
 <body>
@@ -106,23 +32,19 @@
 </div>
 
 <div class="button-row">
-  <!-- Camera (Snap) Button -->
-  <button id="snapBtn" class="icon-btn" title="Snap Photo" aria-label="Snap Photo" type="button">
+  <!-- Snap Button -->
+  <button id="snapBtn" class="icon-btn" title="Snap Photo">
     <svg viewBox="0 0 24 24"><path d="M20 5h-3.586l-1.707-1.707A.996.996 0 0014 3H10a.996.996 0 00-.707.293L7.586 5H4c-1.103 0-2 .897-2 2v11c0 1.104.897 2 2 2h16c1.103 0 2-.896 2-2V7c0-1.103-.897-2-2-2zM12 18c-2.209 0-4-1.791-4-4s1.791-4 4-4c2.208 0 4 1.791 4 4s-1.792 4-4 4z"/><circle cx="12" cy="14" r="2.5"/></svg>
   </button>
-
-  <!-- ✅ Correct Download Button -->
-  <button id="downloadBtn" class="icon-btn" title="Download Photo" aria-label="Download Photo" type="button" style="display:none;">
-    <svg viewBox="0 0 24 24">
-      <path fill="white" d="M5 20h14v-2H5v2zm7-18v12l5-5 1.4 1.4L12 18l-6.4-6.6L7 11l5 5V2z"/>
-    </svg>
+  <!-- Download Button -->
+  <button id="downloadBtn" class="icon-btn" title="Download Photo" style="display:none;">
+    <svg viewBox="0 0 24 24"><path fill="white" d="M5 20h14v-2H5v2zm7-18v12l5-5 1.4 1.4L12 18l-6.4-6.6L7 11l5 5V2z"/></svg>
   </button>
 </div>
 
-<canvas id="canvas" style="display:block; margin: 2rem auto;"></canvas>
+<canvas id="canvas" style="display:block; margin:2rem auto;"></canvas>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-
 <script>
 const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
@@ -131,109 +53,99 @@ const downloadBtn = document.getElementById("downloadBtn");
 const flashOverlay = document.getElementById("flashOverlay");
 const ctx = canvas.getContext("2d");
 
-async function startCamera() {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
-    video.srcObject = stream;
-  } catch (e) {
-    alert("Could not access camera: " + e);
-  }
+async function startCamera(){
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"},audio:false});
+    video.srcObject=stream;
+  }catch(e){alert("Could not access camera: "+e);}
 }
 
-function getPosition() {
-  return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) return reject("Geolocation not supported");
+function getPosition(){
+  return new Promise((resolve,reject)=>{
+    if(!navigator.geolocation) return reject("Geolocation not supported");
     navigator.geolocation.getCurrentPosition(
-      (pos) => resolve(pos.coords),
-      (err) => reject(err.message),
-      { enableHighAccuracy: true, timeout: 10000 }
+      pos=>resolve(pos.coords),
+      err=>reject(err.message),
+      {enableHighAccuracy:true,timeout:10000}
     );
   });
 }
 
-async function drawQRCode(data, x, y, size) {
-  return new Promise((resolve, reject) => {
-    QRCode.toCanvas(data, { errorCorrectionLevel: 'H', width: size }, function (err, qrCanvas) {
-      if (err) reject(err);
-      ctx.drawImage(qrCanvas, x, y);
+async function drawQRCode(data,x,y,size){
+  return new Promise((resolve,reject)=>{
+    QRCode.toCanvas(data,{errorCorrectionLevel:'H',width:size},(err,qrCanvas)=>{
+      if(err) reject(err);
+      ctx.drawImage(qrCanvas,x,y);
       resolve();
     });
   });
 }
 
-function triggerFlash() {
-  flashOverlay.style.opacity = "1";
-  setTimeout(() => { flashOverlay.style.opacity = "0"; }, 150);
+function triggerFlash(){
+  flashOverlay.style.opacity="1";
+  setTimeout(()=>{flashOverlay.style.opacity="0";},150);
 }
 
-snapBtn.addEventListener("click", async () => {
-  snapBtn.disabled = true;
-  downloadBtn.style.display = "none";
+snapBtn.addEventListener("click",async()=>{
+  snapBtn.disabled=true;
+  downloadBtn.style.display="none";
   triggerFlash();
 
-  try {
-    const width = video.videoWidth;
-    const height = video.videoHeight;
-    canvas.width = width;
-    canvas.height = height;
+  try{
+    const width=video.videoWidth;
+    const height=video.videoHeight;
+    canvas.width=width;
+    canvas.height=height;
+    ctx.drawImage(video,0,0,width,height);
 
-    ctx.drawImage(video, 0, 0, width, height);
+    let coordsText="GPS unavailable";
+    let coords=null;
+    try{coords=await getPosition(); coordsText=`Lat:${coords.latitude.toFixed(6)}, Lon:${coords.longitude.toFixed(6)}`;}catch(e){console.warn("GPS error:",e);}
 
-    let coordsText = "GPS unavailable";
-    let coords = null;
-    try {
-      coords = await getPosition();
-      coordsText = `Lat:${coords.latitude.toFixed(6)}, Lon:${coords.longitude.toFixed(6)}`;
-    } catch (e) { console.warn("GPS error:", e); }
+    const now=new Date();
+    const qrData=JSON.stringify({timestamp:now.toISOString(),latitude:coords?coords.latitude:null,longitude:coords?coords.longitude:null});
 
-    const now = new Date();
-    const qrData = JSON.stringify({
-      timestamp: now.toISOString(),
-      latitude: coords ? coords.latitude : null,
-      longitude: coords ? coords.longitude : null
-    });
+    const qrSize=width*0.2;
+    await drawQRCode(qrData,width-qrSize-10,height-qrSize-10,qrSize);
 
-    const qrSize = width * 0.2;
-    const qrX = width - qrSize - 10;
-    const qrY = height - qrSize - 10;
-    await drawQRCode(qrData, qrX, qrY, qrSize);
-
-    // Draw text at bottom center
-    ctx.font = `${qrSize / 8}px monospace`;
-    ctx.fillStyle = "white";
-    ctx.strokeStyle = "black";
-    ctx.lineWidth = 2;
-
-    const lines = [`${now.toLocaleString()}`, coordsText];
-    const lineHeight = qrSize / 8 + 4;
-    let textY = height - 10;
-
-    for (let i = lines.length - 1; i >= 0; i--) {
-      const line = lines[i];
-      const textWidth = ctx.measureText(line).width;
-      const textX = (width - textWidth) / 2;
-      ctx.strokeText(line, textX, textY);
-      ctx.fillText(line, textX, textY);
-      textY -= lineHeight;
+    ctx.font=`${qrSize/8}px monospace`;
+    ctx.fillStyle="white";
+    ctx.strokeStyle="black";
+    ctx.lineWidth=2;
+    const lines=[`${now.toLocaleString()}`,coordsText];
+    const lineHeight=qrSize/8+4;
+    let textY=height-10;
+    for(let i=lines.length-1;i>=0;i--){
+      const textWidth=ctx.measureText(lines[i]).width;
+      const textX=(width-textWidth)/2;
+      ctx.strokeText(lines[i],textX,textY);
+      ctx.fillText(lines[i],textX,textY);
+      textY-=lineHeight;
     }
 
-    downloadBtn.style.display = "inline-flex";
-  } catch (err) {
-    alert("Error capturing photo: " + err);
-  } finally {
-    snapBtn.disabled = false;
-  }
+    downloadBtn.style.display="inline-flex";
+  }catch(err){alert("Error capturing photo: "+err);}
+  finally{snapBtn.disabled=false;}
 });
 
-downloadBtn.addEventListener("click", () => {
-  const link = document.createElement("a");
-  link.download = `photo_${new Date().toISOString()}.png`;
-  link.href = canvas.toDataURL("image/png");
+downloadBtn.addEventListener("click",()=>{
+  // ✅ Compress image & resize if too large
+  const maxW=1000; // keep QR readable
+  let tempCanvas=canvas;
+  if(canvas.width>maxW){
+    const scale=maxW/canvas.width;
+    tempCanvas=document.createElement("canvas");
+    tempCanvas.width=maxW;
+    tempCanvas.height=canvas.height*scale;
+    tempCanvas.getContext("2d").drawImage(canvas,0,0,tempCanvas.width,tempCanvas.height);
+  }
+  const link=document.createElement("a");
+  link.download=`photo_${new Date().toISOString()}.jpg`;
+  link.href=tempCanvas.toDataURL("image/jpeg",0.7); // ✅ lower quality
   link.click();
 });
 
 startCamera();
 </script>
-
 </body>
 </html>
