@@ -71,21 +71,13 @@
     border:none;
     cursor:pointer;
     border-radius:50%;
-    width:72px;              /* slightly larger touch area */
-    height:72px;
+    width:64px;
+    height:64px;
     display:flex;
     align-items:center;
     justify-content:center;
     box-shadow:0 4px 12px rgba(41,128,185,0.4);
     transition:background-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
-    touch-action:manipulation;   /* prevent 300ms delay on some devices */
-    -webkit-tap-highlight-color:transparent; /* remove tap highlight */
-  }
-  
-  button.icon-btn  {
-    width:28px;
-    height:28px;
-    pointer-events:none;   /* ✅ ensures taps hit the button, not the  */
   }
   button.icon-btn:disabled {
     background:#7f8c8d;
@@ -99,6 +91,10 @@
   }
   button.icon-btn:active:not(:disabled) {
     background:#174663;
+  }
+  button.icon-btn svg {
+    width:28px;
+    height:28px;
   }
   .spinner {
     border:3px solid rgba(255,255,255,0.3);
@@ -138,7 +134,7 @@
 </head>
 <body>
   
-<img src="icon-512.png" alt="Flyer Forward Stamped Photo Generator Icon" style="width:128px;height:128px;display:block;margin:0 auto 1rem auto;border-radius:24px;">
+<img src="icon-512.png" alt="Flyer Forward Stamped Photo Generator Icon" style="width:128px;height:128px;display:block;margin:0 auto .5rem auto;border-radius:24px;">
 
 <div class="camera-container">
   <video id="video" autoplay playsinline></video>
@@ -167,7 +163,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-
 <script>
 const video=document.getElementById("video");
 const canvas=document.getElementById("canvas");
