@@ -99,8 +99,9 @@
 
       // Get GPS position
       let coordsText = "GPS unavailable";
+      let coords = null;
       try {
-        const coords = await getPosition();
+        coords = await getPosition();
         coordsText = `Lat:${coords.latitude.toFixed(6)}, Lon:${coords.longitude.toFixed(6)}`;
       } catch (e) {
         console.warn("GPS error:", e);
@@ -110,8 +111,8 @@
       const now = new Date();
       const qrData = JSON.stringify({
         timestamp: now.toISOString(),
-        latitude: coordsText.startsWith("GPS unavailable") ? null : coords.latitude,
-        longitude: coordsText.startsWith("GPS unavailable") ? null : coords.longitude
+        latitude: coords ? coords.latitude : null,
+        longitude: coords ? coords.longitude : null
       });
 
       // Draw QR code at bottom-right corner (about 20% canvas width)
