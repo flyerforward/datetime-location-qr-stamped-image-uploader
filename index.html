@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#2980b9" />
 <title>Flyer Forward: Stamped Photo Generator</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
@@ -290,5 +292,18 @@ downloadBtn.addEventListener("click",()=>{
 
 startCamera();
 </script>
+
+
+  
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(() => console.log('Service Worker Registered'))
+      .catch(err => console.warn('Service Worker registration failed:', err));
+  }
+</script>
+
+
+  
 </body>
 </html>
