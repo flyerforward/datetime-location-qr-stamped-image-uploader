@@ -71,13 +71,15 @@
     border:none;
     cursor:pointer;
     border-radius:50%;
-    width:64px;
-    height:64px;
+    width:72px;  /* bigger touch area */
+    height:72px;
     display:flex;
     align-items:center;
     justify-content:center;
     box-shadow:0 4px 12px rgba(41,128,185,0.4);
     transition:background-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
   }
   button.icon-btn:disabled {
     background:#7f8c8d;
@@ -93,8 +95,9 @@
     background:#174663;
   }
   button.icon-btn svg {
-    width:28px;
-    height:28px;
+    width:32px;
+    height:32px;
+    pointer-events:none; /* ✅ taps always hit the button */
   }
   .spinner {
     border:3px solid rgba(255,255,255,0.3);
@@ -103,29 +106,44 @@
     width:28px;
     height:28px;
     animation:spin 1s linear infinite;
+    pointer-events:none;
   }
   @keyframes spin { 100% { transform: rotate(360deg); } }
-
-  /* ✅ Green success state */
-  button.icon-btn.success {
-    background:#27ae60 !important;
-    box-shadow:0 6px 16px rgba(39,174,96,0.6);
-  }
-  .checkmark-anim { transform: scale(0.8); animation: pop 0.3s ease forwards; }
-  @keyframes pop { 0% {transform: scale(0.5);} 100% {transform: scale(1);} }
-
   canvas {
     border-radius:16px;
     box-shadow:0 8px 24px rgba(44,62,80,0.15);
-    width: 100%;
+    width:100%;
     max-width:320px;
     display:none;
     aspect-ratio:3/4;
     object-fit:cover;
   }
+  .checkmark {
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    border:2px solid white;
+    position:relative;
+    transform:scale(0);
+    animation:popIn 0.3s forwards;
+  }
+  .checkmark:after {
+    content:'';
+    position:absolute;
+    left:6px;
+    top:10px;
+    width:6px;
+    height:12px;
+    border:solid white;
+    border-width:0 2px 2px 0;
+    transform:rotate(45deg);
+  }
+  @keyframes popIn {
+    to { transform:scale(1); }
+  }
   @media(max-width:480px){
-    button.icon-btn{width:56px;height:56px;}
-    button.icon-btn svg{width:24px;height:24px;}
+    button.icon-btn{width:64px;height:64px;}
+    button.icon-btn svg{width:28px;height:28px;}
     .camera-container {max-width:280px;}
     .button-canvas-wrapper {max-width:280px;}
     canvas {max-width:280px;width:100%;}
@@ -145,15 +163,21 @@
   <div class="button-row">
     <!-- Snap Button -->
     <button id="snapBtn" class="icon-btn" title="Snap Photo">
-      <svg id="cameraIcon" viewBox="0 0 24 24">
-        <path fill="white" d="M20 5h-3.586l-1.707-1.707A.996.996 0 0014 3H10a.996.996 0 00-.707.293L7.586 5H4c-1.103 0-2 .897-2 2v11c0 1.104.897 2 2 2h16c1.103 0 2-.896 2-2V7c0-1.103-.897-2-2-2zM12 18c-2.209 0-4-1.791-4-4s1.791-4 4-4c2.208 0 4 1.791 4 4s-1.792 4-4 4z"/>
-        <circle fill="white" cx="12" cy="14" r="2.5"/>
+      <!-- ✅ NEW Camera SVG -->
+      <svg id="cameraIcon" version="1.0" xmlns="http://www.w3.org/2000/svg"
+           width="80px" height="80px" viewBox="0 0 64 64" xml:space="preserve">
+        <g>
+          <path fill="white" d="M60,10H49.656l-6.828-6.828C42.078,2.422,41.062,2,40,2H24c-1.062,0-2.078,0.422-2.828,1.172L14.344,10H4
+            c-2.211,0-4,1.789-4,4v44c0,2.211,1.789,4,4,4h56c2.211,0,4-1.789,4-4V14C64,11.789,62.211,10,60,10z M32,50
+            c-8.836,0-16-7.164-16-16s7.164-16,16-16s16,7.164,16,16S40.836,50,32,50z"/>
+          <circle fill="white" cx="32" cy="34" r="8"/>
+        </g>
       </svg>
     </button>
 
     <!-- Download Button -->
     <button id="downloadBtn" class="icon-btn" title="Download Photo" style="display:none;" disabled>
-      <svg id="downloadIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+      <svg id="downloadIcon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
         <path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 15v2a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-2m-8 1V4m0 12-4-4m4 4 4-4"/>
       </svg>
     </button>
@@ -169,13 +193,9 @@ const canvas=document.getElementById("canvas");
 const snapBtn=document.getElementById("snapBtn");
 const cameraIcon=document.getElementById("cameraIcon");
 const downloadBtn=document.getElementById("downloadBtn");
+const downloadIcon=document.getElementById("downloadIcon");
 const flashOverlay=document.getElementById("flashOverlay");
 const ctx=canvas.getContext("2d");
-
-// ✅ store original download icon
-const originalDownloadIcon = `<svg id="downloadIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-  <path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 15v2a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-2m-8 1V4m0 12-4-4m4 4 4-4"/>
-</svg>`;
 
 async function startCamera(){
   try{
@@ -229,8 +249,6 @@ snapBtn.addEventListener("click",async()=>{
   showSpinner();
   downloadBtn.style.display="none";
   downloadBtn.disabled=true;
-  downloadBtn.innerHTML = originalDownloadIcon; // ✅ restore original arrow
-  downloadBtn.classList.remove("success");
   canvas.style.display="none";
   triggerFlash();
 
@@ -282,7 +300,6 @@ snapBtn.addEventListener("click",async()=>{
 downloadBtn.addEventListener("click",()=>{
   if(downloadBtn.disabled) return;
 
-  // Create download
   const maxW=900;
   let tempCanvas=canvas;
   if(canvas.width>maxW){
@@ -298,16 +315,28 @@ downloadBtn.addEventListener("click",()=>{
   link.href=tempCanvas.toDataURL("image/jpeg",0.4);
   link.click();
 
-  // ✅ Animate success checkmark
-  downloadBtn.classList.add("success");
-  downloadBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="checkmark-anim"><path fill="white" d="M20.285 6.709l-11.4 11.4-5.657-5.657 1.414-1.414 4.243 4.243 9.986-9.986z"/></svg>`;
+  // ✅ Turn button green with checkmark
+  downloadBtn.style.background="#27ae60";
+  downloadIcon.style.display="none";
+  const check=document.createElement("div");
+  check.className="checkmark";
+  downloadBtn.appendChild(check);
 
-  // ✅ Hide button & image after animation
+  // ✅ Disable button and hide after animation
+  downloadBtn.disabled=true;
   setTimeout(()=>{
     downloadBtn.style.display="none";
+    check.remove();
+    downloadBtn.style.background="#2980b9";
+    downloadIcon.style.display="block";
     canvas.style.display="none";
     ctx.clearRect(0,0,canvas.width,canvas.height);
   },800);
+});
+
+// ✅ Make buttons more reliably clickable on iOS
+document.querySelectorAll("button.icon-btn").forEach(btn=>{
+  btn.addEventListener("touchstart",()=>btn.click(),{passive:true});
 });
 
 startCamera();
