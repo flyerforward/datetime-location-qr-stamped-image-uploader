@@ -12,13 +12,13 @@
   .camera-container {position:relative; width:100%; max-width:420px;}
   video {border-radius:16px; box-shadow:0 8px 24px rgba(44,62,80,0.15); width:100%; aspect-ratio:3/4; object-fit:cover; background:#000;}
   .flash {position:absolute; top:0; left:0; width:100%; height:100%; background:white; opacity:0; border-radius:16px; pointer-events:none; transition:opacity 0.3s ease;}
-  canvas {margin-top:1.5rem; border-radius:16px; max-width:420px; box-shadow:0 8px 24px rgba(44,62,80,0.15); width:100%; aspect-ratio:3/4;}
+  canvas {margin-top:1.5rem; border-radius:16px; max-width:420px; box-shadow:0 8px 24px rgba(44,62,80,0.15); width:100%; aspect-ratio:3/4; display:none;}
   .button-row {margin-top:1.8rem; display:flex; gap:2rem; justify-content:center;}
   button.icon-btn {background:#2980b9; border:none; cursor:pointer; border-radius:50%; width:64px; height:64px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(41,128,185,0.4); transition:background-color 0.3s ease, box-shadow 0.3s ease;}
   button.icon-btn:disabled {background:#7f8c8d; cursor:not-allowed; box-shadow:none;}
   button.icon-btn:hover:not(:disabled){background:#1c5980; box-shadow:0 6px 16px rgba(28,89,128,0.6);}
   button.icon-btn:active:not(:disabled){background:#174663;}
-  button.icon-btn svg {width:28px; height:28px; fill:white;}
+  button.icon-btn svg {width:28px; height:28px;}
   @media(max-width:480px){button.icon-btn{width:56px;height:56px;}button.icon-btn svg{width:24px;height:24px;}}
 </style>
 </head>
@@ -40,7 +40,7 @@
     </svg>
   </button>
 
-  <!-- ✅ Download Button with Provided Icon -->
+  <!-- ✅ Download Button using Provided SVG -->
   <button id="downloadBtn" class="icon-btn" title="Download Photo" style="display:none;">
     <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
       <path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 15v2a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-2m-8 1V4m0 12-4-4m4 4 4-4"/>
@@ -48,7 +48,7 @@
   </button>
 </div>
 
-<canvas id="canvas" style="display:block; margin:2rem auto;"></canvas>
+<canvas id="canvas"></canvas>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script>
@@ -87,11 +87,15 @@ async function drawQRCode(data,x,y,size){
   });
 }
 
-function triggerFlash(){flashOverlay.style.opacity="1";setTimeout(()=>flashOverlay.style.opacity="0",150);}
+function triggerFlash(){
+  flashOverlay.style.opacity="1";
+  setTimeout(()=>flashOverlay.style.opacity="0",150);
+}
 
 snapBtn.addEventListener("click",async()=>{
   snapBtn.disabled=true;
   downloadBtn.style.display="none";
+  canvas.style.display="none"; // ✅ hide until final image is ready
   triggerFlash();
 
   try{
@@ -108,11 +112,13 @@ snapBtn.addEventListener("click",async()=>{
     const now=new Date();
     const qrData=JSON.stringify({timestamp:now.toISOString(),latitude:coords?coords.latitude:null,longitude:coords?coords.longitude:null});
 
-    const qrSize=width*0.25; // ✅ larger QR
-    await drawQRCode(qrData,10,10,qrSize); // ✅ top-left corner
+    const qrSize=width*0.25;
+    await drawQRCode(qrData,10,10,qrSize); // ✅ QR at top-left
 
-    ctx.font=`${qrSize/7}px monospace`; // ✅ larger text
-    ctx.fillStyle="white";ctx.strokeStyle="black";ctx.lineWidth=2;
+    ctx.font=`${qrSize/7}px monospace`;
+    ctx.fillStyle="white";
+    ctx.strokeStyle="black";
+    ctx.lineWidth=2;
     const lines=[`${now.toLocaleString()}`,coordsText];
     const lineHeight=qrSize/7+4;
     let textY=height-10;
@@ -124,13 +130,14 @@ snapBtn.addEventListener("click",async()=>{
       textY-=lineHeight;
     }
 
+    // ✅ Show canvas only when fully stamped
+    canvas.style.display="block";
     downloadBtn.style.display="inline-flex";
   }catch(err){alert("Error capturing photo: "+err);}
   finally{snapBtn.disabled=false;}
 });
 
 downloadBtn.addEventListener("click",()=>{
-  // ✅ Smaller file: 900px max width, 40% quality
   const maxW=900;
   let tempCanvas=canvas;
   if(canvas.width>maxW){
@@ -142,7 +149,7 @@ downloadBtn.addEventListener("click",()=>{
   }
   const link=document.createElement("a");
   link.download=`photo_${new Date().toISOString()}.jpg`;
-  link.href=tempCanvas.toDataURL("image/jpeg",0.4);
+  link.href=tempCanvas.toDataURL("image/jpeg",0.4); // ✅ very compressed
   link.click();
 });
 
