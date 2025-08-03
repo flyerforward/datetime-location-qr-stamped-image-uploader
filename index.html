@@ -281,8 +281,9 @@ downloadBtn.addEventListener("click",()=>{
   link.href=tempCanvas.toDataURL("image/jpeg",0.4);
   link.click();
 
-  // ✅ disable after download
+  // ✅ after download: hide the button & clear canvas
   downloadBtn.disabled=true;
+  downloadBtn.style.display="none";
   setTimeout(()=>{
     canvas.style.display="none";
     ctx.clearRect(0,0,canvas.width,canvas.height);
