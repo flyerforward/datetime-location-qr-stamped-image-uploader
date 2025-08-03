@@ -89,19 +89,6 @@
     height: 28px;
   }
 
-  /* Tooltip style */
-  button.icon-btn[title]:hover::after {
-    content: attr(title);
-    position: absolute;
-    bottom: 90px;
-    background: #222;
-    color: #fff;
-    font-size: 0.75rem;
-    padding: 0.2em 0.5em;
-    border-radius: 4px;
-    white-space: nowrap;
-  }
-
   @media (max-width: 480px) {
     button.icon-btn {
       width: 56px;
@@ -130,9 +117,9 @@
   </button>
 
   <button id="downloadBtn" class="icon-btn" title="Download Photo" aria-label="Download Photo" type="button" style="display:none;">
-    <!-- Download icon -->
+    <!-- Correct download icon -->
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path d="M5 20h14v-2H5v2zm7-18L5.33 9.33l1.41 1.41L11 7.41V16h2V7.41l4.26 3.33 1.41-1.41L12 2z"/>
+      <path d="M5 20h14v-2H5v2zm7-18l-5 5h3v6h4v-6h3l-5-5z"/>
     </svg>
   </button>
 </div>
@@ -214,7 +201,7 @@
       const qrY = height - qrSize - 10;
       await drawQRCode(qrData, qrX, qrY, qrSize);
 
-      // Draw centered text above QR code
+      // Draw centered text AT THE VERY BOTTOM of the photo, below the QR code
       ctx.font = `${qrSize / 8}px monospace`;
       ctx.fillStyle = "white";
       ctx.strokeStyle = "black";
@@ -222,8 +209,11 @@
 
       const lines = [`${now.toLocaleString()}`, coordsText];
       const lineHeight = qrSize / 8 + 4;
-      let textY = qrY - 10;
 
+      // Start text drawing from bottom margin (small padding)
+      let textY = height - 10;
+
+      // Draw lines upwards (from bottom to top)
       for (let i = lines.length - 1; i >= 0; i--) {
         const line = lines[i];
         const textWidth = ctx.measureText(line).width;
@@ -250,6 +240,5 @@
 
   startCamera();
 </script>
-
 </body>
 </html>
